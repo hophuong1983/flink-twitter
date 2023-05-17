@@ -30,6 +30,7 @@ public class TweetFilteringOperator implements Serializable {
     }
 
     private boolean filter(Tweet tweet) {
+        System.out.println(tweet.getCountryCode());
         return countryRule.apply(tweet) &&
                 topicRules.stream().anyMatch(rule -> rule.apply(tweet));
     }

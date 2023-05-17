@@ -12,6 +12,6 @@ public class CountryRule implements Rule {
 
     @Override
     public boolean apply(Tweet tweet) {
-        return tweet.getCountry().toLowerCase().equals(country);
+        return tweet.getCountryCode().toLowerCase().equals(country);
     }
 }
