@@ -28,6 +28,7 @@ public abstract class PubNubClient {
     public void run() throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
+        // Connect to PubNub
         Properties pubNubConf = ConfigUtils.propsFromConfig(config.getConfig("pubnub"));
         DataStream<Tweet> tweetStream = env.addSource(new PubNubSource(pubNubConf));
         processTweetStream(tweetStream);

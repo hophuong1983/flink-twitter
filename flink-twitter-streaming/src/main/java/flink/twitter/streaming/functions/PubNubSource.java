@@ -32,8 +32,6 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
     private transient PubNub pubnub;
     private volatile boolean isRunning = true;
 
-//    private SourceContext<Tweet> storedSourceContext;
-
     public PubNubSource(Properties props) {
         this.props = props;
     }
@@ -41,8 +39,7 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
     @Override
     public void run(SourceContext<Tweet> sourceContext) throws PubNubException, InterruptedException {
 
-//        storedSourceContext = sourceContext;
-
+        // Config PubNub listener
         final UserId userId = new UserId(props.getProperty("user.id"));
         PNConfiguration pnConfiguration = new PNConfiguration(userId);
         pnConfiguration.setSubscribeKey(props.getProperty("subscribe.key"));
@@ -61,12 +58,15 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
 
             @Override
             public void message(PubNub pubnub, PNMessageResult message) {
+                // Process message received from PubNub
                 try {
                     Tweet tweet = PubNubMessageParser.convertToTweet(message);
                     synchronized (sourceContext.getCheckpointLock()) {
                         sourceContext.collect(tweet);
                     }
                 } catch (RuntimeException ex) {
+                    // Something wrong happened due to format change
+                    // Need to stop and investigate
                     logger.error("Got exception with " + message.getMessage().toString(), ex);
                     cancel();
                 }
@@ -109,11 +109,13 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
 
         });
 
+        // Start PubNub listener
         String channelName = props.getProperty("channel.name");
         pubnub.subscribe()
                 .channels(Collections.singletonList(channelName))
                 .execute();
 
+        // Keep the thread running to do callback
         while (isRunning) {
             Thread.sleep(1000);
         }
