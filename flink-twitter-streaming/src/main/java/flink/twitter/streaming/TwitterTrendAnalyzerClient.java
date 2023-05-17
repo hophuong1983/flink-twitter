@@ -12,18 +12,16 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.util.Properties;
 
-public abstract class PubNubClient {
+public class TwitterTrendAnalyzerClient {
 
-    final static Logger logger = Logger.getLogger(PubNubClient.class);
+    final static Logger logger = Logger.getLogger(TwitterTrendAnalyzerClient.class);
     Config config;
 
-    public PubNubClient(String configFilePath) {
+    public TwitterTrendAnalyzerClient(String configFilePath) {
 
         logger.info("Config file " + configFilePath);
         config = ConfigFactory.parseFile(new File(configFilePath));
     }
-
-    public abstract void processTweetStream(DataStream<Tweet> tweetStream);
 
     public void run() throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -31,8 +29,21 @@ public abstract class PubNubClient {
         // Connect to PubNub
         Properties pubNubConf = ConfigUtils.propsFromConfig(config.getConfig("pubnub"));
         DataStream<Tweet> tweetStream = env.addSource(new PubNubSource(pubNubConf));
-        processTweetStream(tweetStream);
+        tweetStream.print();
 
         env.execute();
     }
+
+    public static void main(String[] args) throws Exception {
+
+        if (args.length == 0){
+            logger.error("Config file is missing");
+            System.exit(1);
+        }
+
+        String configFilePath = args[0];
+        TwitterTrendAnalyzerClient client = new TwitterTrendAnalyzerClient(configFilePath);
+        client.run();
+    }
+
 }
