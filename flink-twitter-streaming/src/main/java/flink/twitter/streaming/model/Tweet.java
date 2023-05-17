@@ -2,6 +2,7 @@ package flink.twitter.streaming.model;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class Tweet implements Serializable {
 
@@ -19,6 +20,23 @@ public class Tweet implements Serializable {
         this.userName = userName;
         this.country = country;
         this.hashTags = hashTags;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        Tweet tweet = (Tweet) other;
+        return timestampMs == tweet.timestampMs &&
+                Objects.equals(id, tweet.id) &&
+                Objects.equals(text, tweet.text) &&
+                Objects.equals(userName, tweet.userName) &&
+                Objects.equals(country, tweet.country) &&
+                Arrays.equals(hashTags, tweet.hashTags);
     }
 
     @Override

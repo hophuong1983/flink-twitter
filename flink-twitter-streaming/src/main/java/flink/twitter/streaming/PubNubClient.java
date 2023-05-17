@@ -15,7 +15,7 @@ import java.util.Properties;
 public abstract class PubNubClient {
 
     final static Logger logger = Logger.getLogger(PubNubClient.class);
-    Config config;
+    protected Config config;
 
     public PubNubClient(String configFilePath) {
 

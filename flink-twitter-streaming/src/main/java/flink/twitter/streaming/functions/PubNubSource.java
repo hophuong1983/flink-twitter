@@ -29,8 +29,8 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
     final static Logger logger = Logger.getLogger(PubNubSource.class);
 
     private final Properties props;
+    private final boolean isRunning = true;
     private transient PubNub pubnub;
-    private volatile boolean isRunning = true;
 
     public PubNubSource(Properties props) {
         this.props = props;
@@ -130,7 +130,8 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
         }
     }
 
-    @Override protected void finalize() throws Throwable {
+    @Override
+    protected void finalize() throws Throwable {
         super.finalize();
         cancel();
     }
