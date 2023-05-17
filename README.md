@@ -32,9 +32,15 @@ Create a client that connects with PubNub.
 #### Implementation
 I created a demo client that consume tweets and print out all of them: `TwitterToStdoutClient`. 
 #### How to run
-Run `TwitterToStdoutClient`
+Check out the tag and build the jar file
 ```
 cd [Path to flink-twitter]
+git checkout phase_1
+cd flink-twitter-streaming/
+mvn install
+```
+Run `TwitterToStdoutClient`
+```
 bash cmd/run_twitter_to_stdout_client.sh 
 ```
 Check the tweets output on the TaskManager logs on Flink dashboard.
