@@ -35,7 +35,7 @@ I created a demo client that consume tweets and print out all of them: `TwitterT
 Run `TwitterToStdoutClient`
 ```
 cd [Path to flink-twitter]
-bash cmd/run_tweet_to_stdout_client.sh 
+bash cmd/run_twitter_to_stdout_client.sh 
 ```
 Check the tweets output on the TaskManager logs on Flink dashboard.
 ```
