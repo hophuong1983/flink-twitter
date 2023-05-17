@@ -1,10 +1,12 @@
 package flink.twitter.streaming;
 
+import com.typesafe.config.Config;
 import flink.twitter.streaming.model.Tweet;
+import flink.twitter.streaming.operators.TweetFilteringOperator;
 import org.apache.flink.streaming.api.datastream.DataStream;
 
-public class TwitterToStdoutClient extends PubNubClient {
-    public TwitterToStdoutClient(String configFilePath) {
+public class TwitterTrendToStdoutClient extends PubNubClient {
+    public TwitterTrendToStdoutClient(String configFilePath) {
         super(configFilePath);
     }
 
@@ -16,12 +18,15 @@ public class TwitterToStdoutClient extends PubNubClient {
         }
 
         String configFilePath = args[0];
-        TwitterToStdoutClient client = new TwitterToStdoutClient(configFilePath);
+        TwitterTrendToStdoutClient client = new TwitterTrendToStdoutClient(configFilePath);
         client.run();
     }
 
     @Override
     public void processTweetStream(DataStream<Tweet> tweetStream) {
-        tweetStream.print();
+
+        Config trendsConfig = config.getConfig("twitter.topic_filter");
+        TweetFilteringOperator operator = new TweetFilteringOperator(trendsConfig);
+        operator.filter(tweetStream).print();
     }
 }
