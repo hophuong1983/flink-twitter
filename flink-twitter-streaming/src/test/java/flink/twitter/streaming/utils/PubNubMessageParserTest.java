@@ -22,7 +22,7 @@ class PubNubMessageParserTest {
         Tweet expected = new Tweet(
                 "1623677806713487361",
                 1675949930252L,
-                "INDUSTRY MIXER February 18th",
+                "INDUSTRY MIXER February 18th \uD83E\uDDE8 BE THERE #BGsWORLD @ Out Your League ENT https://t.co/6jNkGPB26x",
                 "ATL BABY G",
                 "US",
                 new String[]{"BGsWORLD"}
