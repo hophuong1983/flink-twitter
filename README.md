@@ -19,6 +19,12 @@ Clone the project
 ```
 git clone https://github.com/hophuong1983/flink-twitter.git
 ```
+Build jar file for streaming client
+```
+cd [Path to flink-twitter]
+cd flink-twitter-streaming
+mvn install
+```
 ## Deliveries
 ### Phase 1
 #### Objective
@@ -26,11 +32,6 @@ Create a client that connects with PubNub.
 #### Implementation
 I created a demo client that consume tweets and print out all of them: `TwitterToStdoutClient`. 
 #### How to run
-Pull the code and build jar file
-```
-cd [Path to flink-twitter]
-mvn install
-```
 Run `TwitterToStdoutClient`
 ```
 cd [Path to flink-twitter]
