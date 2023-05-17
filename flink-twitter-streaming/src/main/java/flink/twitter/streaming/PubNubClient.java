@@ -21,6 +21,7 @@ public abstract class PubNubClient {
 
         logger.info("Config file " + configFilePath);
         config = ConfigFactory.parseFile(new File(configFilePath));
+        logger.info("Config  " + config);
     }
 
     public abstract void processTweetStream(DataStream<Tweet> tweetStream);

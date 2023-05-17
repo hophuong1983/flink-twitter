@@ -17,4 +17,16 @@ public class TopTrendTwitterToStdoutClient extends PubNubClient {
         TweetFilteringOperator operator = new TweetFilteringOperator(trendsConfig);
         operator.filter(tweetStream).print();
     }
+
+    public static void main(String[] args) throws Exception {
+
+        if (args.length == 0){
+            logger.error("Config file is missing");
+            System.exit(1);
+        }
+
+        String configFilePath = args[0];
+        TopTrendTwitterToStdoutClient client = new TopTrendTwitterToStdoutClient(configFilePath);
+        client.run();
+    }
 }
