@@ -24,7 +24,7 @@ class PubNubMessageParserTest {
                 1675949930252L,
                 "INDUSTRY MIXER February 18th",
                 "ATL BABY G",
-                "United States",
+                "US",
                 new String[]{"BGsWORLD"}
         );
 
@@ -60,7 +60,7 @@ class PubNubMessageParserTest {
                 1675949930252L,
                 "INDUSTRY MIXER February 18th",
                 "ATL BABY G",
-                "United States",
+                "US",
                 new String[0]
         );
 
