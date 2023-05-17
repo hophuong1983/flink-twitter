@@ -9,15 +9,15 @@ public class Tweet implements Serializable {
     long timestampMs;
     String text;
     String userName;
-    String country;
+    String countryCode;
     String[] hashTags;
 
-    public Tweet(String id, long timestampMs, String text, String userName, String country, String[] hashTags) {
+    public Tweet(String id, long timestampMs, String text, String userName, String countryCode, String[] hashTags) {
         this.id = id;
         this.timestampMs = timestampMs;
         this.text = text;
         this.userName = userName;
-        this.country = country;
+        this.countryCode = countryCode;
         this.hashTags = hashTags;
     }
 
@@ -28,7 +28,7 @@ public class Tweet implements Serializable {
                 ", timestampMs=" + timestampMs +
                 ", text='" + text + '\'' +
                 ", userName='" + userName + '\'' +
-                ", country='" + country + '\'' +
+                ", countryCode='" + countryCode + '\'' +
                 ", hashTags=" + Arrays.toString(hashTags) +
                 '}';
     }
@@ -57,12 +57,12 @@ public class Tweet implements Serializable {
         this.userName = userName;
     }
 
-    public String getCountry() {
-        return country;
+    public String getCountryCode() {
+        return countryCode;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
     }
 
     public String[] getHashTags() {

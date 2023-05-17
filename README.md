@@ -39,7 +39,8 @@ bash cmd/run_twitter_to_stdout_client.sh
 ```
 Check the tweets output on the TaskManager logs on Flink dashboard.
 ```
-6> Tweet{id='1623646635409526785', timestampMs=1675942498434, text='@KimberlyGuima10 Verdade linda, concordo', userName='luazinha', country='Brasil', hashTags=[]}
-7> Tweet{id='1623646635963154439', timestampMs=1675942498566, text='@vaboiredujuusla WWWWAAAAAAAA', userName='lagrange (安らかに眠るw)', country='France', hashTags=[]}
-8> Tweet{id='1623646636139286529', timestampMs=1675942498608, text='@marianaspinelIi Isso sim.', userName='Dias melhores.', country='Brasil', hashTags=[]}
-```
+8> Tweet{id='1623721370809933824', timestampMs=1675960316742, text='@haluklevent  abi siyaseti sevmiyorsun biliyorum amma seçim için hazineden aldıkları paranın birazını sosyal soruml… https://t.co/g7S50HvCtV', userName='Ramazan AZAK', countryCode='TR', hashTags=[]}
+9> Tweet{id='1623721371195912195', timestampMs=1675960316834, text='Hoy es MJ 
+Bakán', userName='Pasas al Ron ₪ ø lll ·o.', countryCode='CL', hashTags=[]}
+10> Tweet{id='1623721371439185929', timestampMs=1675960316892, text='Memories 💔', userName='يُمنىٰ', countryCode='EG', hashTags=[]}
+1```

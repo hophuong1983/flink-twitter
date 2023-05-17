@@ -17,9 +17,9 @@ public class PubNubMessageParser {
 
     static Tweet convertToTweet(JsonElement message) {
         JsonObject msg = message.getAsJsonObject();
-        String country = null;
+        String countryCode = null;
         if (msg.get("place") != null) {
-            country = msg.get("place").getAsJsonObject().get("country").getAsString();
+            countryCode = msg.get("place").getAsJsonObject().get("country_code").getAsString();
         }
 
         long timestampMs = msg.get("timestamp_ms").getAsLong();
@@ -35,6 +35,6 @@ public class PubNubMessageParser {
             }
         }
 
-        return new Tweet(id, timestampMs, text, userName, country, hashTags.toArray(new String[0]));
+        return new Tweet(id, timestampMs, text, userName, countryCode, hashTags.toArray(new String[0]));
     }
 }
