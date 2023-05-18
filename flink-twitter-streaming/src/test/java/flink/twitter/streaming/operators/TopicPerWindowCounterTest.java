@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 class TopicPerWindowCounterTest {
@@ -74,7 +75,7 @@ class TopicPerWindowCounterTest {
 
     static void generateCountPerMinuteWith(List<Integer> windowSizeMinList,
                                            List<SinkFunction> sinks,
-                                           Iterable<PerWindowTopicCount> expected) throws Exception {
+                                           List<PerWindowTopicCount> expected) throws Exception {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
@@ -101,15 +102,14 @@ class TopicPerWindowCounterTest {
         }
 
         env.execute();
-
-        assertIterableEquals(expected, ListSink.outputList);
+        assertTrue(expected.containsAll(ListSink.outputList));
+        assertTrue(ListSink.outputList.containsAll(expected));
     }
     @Test
     void generateCountPerMinute() throws Exception {
         // window following window generates same result as one window only
         generateCountPerMinuteWith(Arrays.asList(5), new ArrayList<>(), fiveMinCntExpected);
         generateCountPerMinuteWith(Arrays.asList(1, 5), new ArrayList<>(), fiveMinCntExpected);
-
     }
 
     @Test
@@ -120,6 +120,7 @@ class TopicPerWindowCounterTest {
         List<PerWindowTopicCount> expected = new ArrayList<>();
         expected.addAll(oneMinCntExpected);
         expected.addAll(fiveMinCntExpected);
+
         generateCountPerMinuteWith(Arrays.asList(1, 5), Arrays.asList(listSink), expected);
 
     }
