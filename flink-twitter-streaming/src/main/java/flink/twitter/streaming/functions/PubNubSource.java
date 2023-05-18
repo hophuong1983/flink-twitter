@@ -30,7 +30,7 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
     private static final Logger LOG = LoggerFactory.getLogger(PubNubSource.class);
 
     private final Properties props;
-    private final boolean isRunning = true;
+    private volatile boolean isRunning = true;
     private transient PubNub pubnub;
 
     public PubNubSource(Properties props) {
