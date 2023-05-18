@@ -18,7 +18,8 @@ import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResu
 import flink.twitter.streaming.model.Tweet;
 import flink.twitter.streaming.utils.PubNubMessageParser;
 import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -26,7 +27,7 @@ import java.util.Properties;
 
 public class PubNubSource extends RichSourceFunction<Tweet> {
 
-    final static Logger logger = Logger.getLogger(PubNubSource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PubNubSource.class);
 
     private final Properties props;
     private transient PubNub pubnub;
@@ -52,7 +53,7 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
                 if (status.getCategory() == PNStatusCategory.PNConnectedCategory) {
                     // Just use the connected event to confirm you are subscribed for
                     // UI / internal notifications, etc
-                    logger.info("Connected PubNub successfully");
+                    LOG.info("Connected PubNub successfully");
                 }
             }
 
@@ -67,7 +68,7 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
                 } catch (RuntimeException ex) {
                     // Something wrong happened due to format change
                     // Need to stop and investigate
-                    logger.error("Got exception with " + message.getMessage().toString(), ex);
+                    LOG.error("Got exception with " + message.getMessage().toString(), ex);
                     cancel();
                 }
             }
@@ -123,14 +124,15 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
 
     @Override
     public void cancel() {
-        logger.info("Disconnecting PubNub");
+        LOG.info("Disconnecting PubNub");
         if (pubnub != null) {
             pubnub.disconnect();
             pubnub.forceDestroy();
         }
     }
 
-    @Override protected void finalize() throws Throwable {
+    @Override
+    protected void finalize() throws Throwable {
         super.finalize();
         cancel();
     }

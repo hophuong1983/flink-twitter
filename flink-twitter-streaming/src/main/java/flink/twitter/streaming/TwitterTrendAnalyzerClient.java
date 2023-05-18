@@ -7,19 +7,20 @@ import flink.twitter.streaming.model.Tweet;
 import flink.twitter.streaming.utils.ConfigUtils;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Properties;
 
 public class TwitterTrendAnalyzerClient {
 
-    final static Logger logger = Logger.getLogger(TwitterTrendAnalyzerClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PubNubSource.class);
     Config config;
 
     public TwitterTrendAnalyzerClient(String configFilePath) {
 
-        logger.info("Config file " + configFilePath);
+        LOG.info("Config file " + configFilePath);
         config = ConfigFactory.parseFile(new File(configFilePath));
     }
 
@@ -37,7 +38,7 @@ public class TwitterTrendAnalyzerClient {
     public static void main(String[] args) throws Exception {
 
         if (args.length == 0){
-            logger.error("Config file is missing");
+            LOG.error("Config file is missing");
             System.exit(1);
         }
 
