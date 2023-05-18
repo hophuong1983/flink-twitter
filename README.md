@@ -66,7 +66,7 @@ git checkout phase_2
 cd flink-twitter-streaming/
 mvn install
 ```
-Run `TwitterToStdoutClient`
+Run the Flink client
 ```
 bash cmd/run_twitter_trend_analyzer_client.sh
 ```
