@@ -3,7 +3,10 @@ package flink.twitter.streaming;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import flink.twitter.streaming.functions.PubNubSource;
+import flink.twitter.streaming.model.PerWindowTopicCount;
 import flink.twitter.streaming.model.Tweet;
+import flink.twitter.streaming.model.TweetTopic;
+import flink.twitter.streaming.operators.PerWindowTopicCounter;
 import flink.twitter.streaming.operators.TweetFilteringOperator;
 import flink.twitter.streaming.utils.ConfigUtils;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -35,8 +38,16 @@ public class TwitterTrendAnalyzerClient {
 
         // Do filtering
         Config trendsConfig = config.getConfig("twitter.filtering");
-        TweetFilteringOperator operator = new TweetFilteringOperator(trendsConfig);
-        operator.filter(tweetStream).print();
+        TweetFilteringOperator filterOperator = new TweetFilteringOperator(trendsConfig);
+        DataStream<TweetTopic> topicStream = filterOperator.filter(tweetStream);
+
+        // For each topic, count messages per window
+        Config aggregationConfig = config.getConfig("aggregation");
+        PerWindowTopicCounter countOperator = new PerWindowTopicCounter();
+        DataStream<PerWindowTopicCount> countResult = countOperator
+                .generateCountPerWindow(topicStream, aggregationConfig.getIntList("windows"));
+
+        countResult.print();
 
         env.execute();
     }
