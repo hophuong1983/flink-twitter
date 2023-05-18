@@ -72,8 +72,23 @@ bash cmd/run_twitter_trend_analyzer_client.sh
 ```
 Check the tweets output on the TaskManager logs on Flink dashboard.
 ```
-8> Tweet{id='1623721370809933824', timestampMs=1675960316742, text='@haluklevent  abi siyaseti sevmiyorsun biliyorum amma seçim için hazineden aldıkları paranın birazını sosyal soruml… https://t.co/g7S50HvCtV', userName='Ramazan AZAK', countryCode='TR', hashTags=[]}
+8> Tweet{id='1623721370809933824', timestampMs=1675960316742, text='@haluklevent  abi siyaseti sevmiyorsun biliyorum amma seçim için hazineden aldıkları paranın birazını sosyal soruml… https://t.co/g7S50HvCtV', userName='Ramazan AZAK', countryCode=null, hashTags=[]}
 9> Tweet{id='1623721371195912195', timestampMs=1675960316834, text='Hoy es MJ
-Bakán', userName='Pasas al Ron ₪ ø lll ·o.', countryCode='CL', hashTags=[]}
-10> Tweet{id='1623721371439185929', timestampMs=1675960316892, text='Memories 💔', userName='يُمنىٰ', countryCode='EG', hashTags=[]}
-1```
+Bakán', userName='Pasas al Ron ₪ ø lll ·o.', countryCode='NL', hashTags=[]}
+10> Tweet{id='1623721371439185929', timestampMs=1675960316892, text='Memories 💔', userName='يُمنىٰ', countryCode='NL', hashTags=[]}
+```
+
+Note that using PubNub tweets are consumed from all around the world with low throughput, 
+there may be no output with the real top trends in some period. 
+We could change topics in file `conf/dev/twitter_trend_analyzer.conf`
+to have some output.
+
+```agsl
+...
+twitter {
+    topic_filter {
+        ...
+        topics = ["M"]
+    }
+}
+```
