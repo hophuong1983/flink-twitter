@@ -56,10 +56,7 @@ public class TwitterTrendAnalyzerClient {
         // For each topic, count messages per window
         List<SinkFunction> sinks = Arrays.asList(new PrintSinkFunction());
         PerWindowTopicCounter countOperator = new PerWindowTopicCounter();
-        DataStream<PerWindowTopicCount> countResult =
-                countOperator.generateCountPerWindow(deduplicatedTopicStream, windows, sinks);
-
-        countResult.print();
+        countOperator.generateCountPerWindow(deduplicatedTopicStream, windows, sinks);
 
         env.execute();
     }
