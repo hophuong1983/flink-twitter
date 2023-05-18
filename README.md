@@ -41,7 +41,7 @@ mvn install
 ```
 Run `TwitterToStdoutClient`
 ```
-bash cmd/run_twitter_to_stdout_client.sh 
+bash cmd/run_twitter_trend_analyzer_client.sh 
 ```
 Check the tweets output on the TaskManager logs on Flink dashboard.
 ```
