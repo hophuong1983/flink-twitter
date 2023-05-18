@@ -70,6 +70,7 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
                     // Need to stop and investigate
                     LOG.error("Got exception with " + message.getMessage().toString(), ex);
                     cancel();
+                    throw ex;
                 }
             }
 
