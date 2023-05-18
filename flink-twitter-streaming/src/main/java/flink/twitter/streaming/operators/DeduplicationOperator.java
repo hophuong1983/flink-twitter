@@ -6,9 +6,10 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 
 public class DeduplicationOperator {
 
-    public DataStream<TweetTopic> deduplicate(DataStream<TweetTopic> tweetStream){
+    public DataStream<TweetTopic> deduplicate(DataStream<TweetTopic> tweetStream,
+                                              int deduplicateStateTtlMin){
         return tweetStream
                 .keyBy(topic -> topic.getId())
-                .flatMap(new DeduplicationFunction());
+                .flatMap(new DeduplicationFunction(deduplicateStateTtlMin));
     }
 }

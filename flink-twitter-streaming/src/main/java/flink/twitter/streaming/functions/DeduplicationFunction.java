@@ -14,11 +14,16 @@ import org.apache.flink.util.Collector;
 public class DeduplicationFunction extends RichFlatMapFunction<TweetTopic, TweetTopic> {
 
     ValueState<Boolean> seen;
+    int ttlMin;
+
+    public DeduplicationFunction(int ttlMin) {
+        this.ttlMin = ttlMin;
+    }
 
     @Override
     public void open(Configuration conf) {
         StateTtlConfig ttlConfig = StateTtlConfig
-                .newBuilder(Time.minutes(1))
+                .newBuilder(Time.minutes(ttlMin))
                 .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
                 .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired)
                 .cleanupFullSnapshot()

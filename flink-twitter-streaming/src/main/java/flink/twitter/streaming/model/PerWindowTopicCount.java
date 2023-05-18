@@ -20,7 +20,7 @@ public class PerWindowTopicCount implements Serializable {
 
     @Override
     public String toString() {
-        return "TopicCountPerWindow{" +
+        return "PerWindowTopicCount{" +
                 "topic='" + topic + '\'' +
                 ", count=" + count +
                 ", windowSizeMin=" + windowSizeMin +

@@ -1,10 +1,10 @@
 package flink.twitter.streaming.operators;
 
 import flink.twitter.streaming.model.PerWindowTopicCount;
-import flink.twitter.streaming.model.Tweet;
 import flink.twitter.streaming.model.TweetTopic;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
@@ -26,7 +26,7 @@ public class PerWindowTopicCounter {
     }
 
     public DataStream<PerWindowTopicCount> generateCountPerWindow(DataStream<TweetTopic> tweetStream,
-                                                                  List<Integer> windowSizeMinList) {
+                                                                  List<Integer> windowSizeMinList, List<SinkFunction> sinks) {
 
         DataStream<PerWindowTopicCount> topicCntStream =
                 assignWatermark(tweetStream).map(
@@ -50,6 +50,10 @@ public class PerWindowTopicCounter {
                             collector.collect(new PerWindowTopicCount(topic, cntSum, windowSizeMin, context.window().getEnd()));
                         }
                     });
+
+            for (SinkFunction sink: sinks) {
+                topicCntStream.addSink(sink);
+            }
 
         }
         return topicCntStream;

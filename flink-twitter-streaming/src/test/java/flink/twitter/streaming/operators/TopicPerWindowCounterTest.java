@@ -5,8 +5,11 @@ import flink.twitter.streaming.model.TweetTopic;
 import flink.twitter.streaming.utils.ListSink;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.PrintSinkFunction;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,7 +17,21 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 class TopicPerWindowCounterTest {
 
-    static Iterable<PerWindowTopicCount> fiveMinCntExpected = Arrays.asList(
+    static List<PerWindowTopicCount> oneMinCntExpected = Arrays.asList(
+            //window ends at minute 0
+            new PerWindowTopicCount("Pebbles", 1, 1, 1684100520000l),
+            new PerWindowTopicCount("Fred", 1, 1, 1684100520000l),
+            new PerWindowTopicCount("Wilma", 1, 1, 1684100520000l),
+
+            //window ends at minute 2
+            new PerWindowTopicCount("Fred", 1, 1, 1684100640000l),
+            new PerWindowTopicCount("Wilma", 1, 1, 1684100640000l),
+
+            //window ends at minute 6
+            new PerWindowTopicCount("Fred", 1, 1, 1684100880000l)
+    );
+
+    static List<PerWindowTopicCount> fiveMinCntExpected = Arrays.asList(
             //window ends at minute 0
             new PerWindowTopicCount("Pebbles", 1, 5, 1684100520000l),
             new PerWindowTopicCount("Fred", 1, 5, 1684100520000l),
@@ -55,7 +72,9 @@ class TopicPerWindowCounterTest {
             new PerWindowTopicCount("Fred", 1, 5, 1684101120000l)
     );
 
-    static void generateCountPerMinuteWith(List<Integer> windowSizeMinList) throws Exception {
+    static void generateCountPerMinuteWith(List<Integer> windowSizeMinList,
+                                           List<SinkFunction> sinks,
+                                           Iterable<PerWindowTopicCount> expected) throws Exception {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
@@ -66,26 +85,43 @@ class TopicPerWindowCounterTest {
                 new TweetTopic("Fred","2", 1684100474001l),
                 new TweetTopic("Wilma","3", 1684100474002l),
                 // minute 2
-                new TweetTopic("Fred","4", 1684100474000l + 120000),
-                new TweetTopic("Wilma","5", 1684100474000l + 120000),
+                new TweetTopic("Fred","4", 1684100584000l),
+                new TweetTopic("Wilma","5", 1684100584000l),
                 // minute 6
-                new TweetTopic("Fred", "4", 1684100474000l + 360000)
+                new TweetTopic("Fred", "4", 1684100834000l)
         );
 
         PerWindowTopicCounter counter = new PerWindowTopicCounter();
-        DataStream<PerWindowTopicCount> result = counter.generateCountPerWindow(tweetDs, Arrays.asList(5));
+        DataStream<PerWindowTopicCount> result = counter.generateCountPerWindow(tweetDs, windowSizeMinList, sinks);
 
-        ListSink listSink = new ListSink();
-        listSink.outputList.clear();
-        result.addSink(listSink);
+        if (sinks.isEmpty()) {
+            ListSink listSink = new ListSink();
+            listSink.outputList.clear();
+            result.addSink(listSink);
+        }
+
         env.execute();
 
-        assertIterableEquals(fiveMinCntExpected, listSink.outputList);
+        assertIterableEquals(expected, ListSink.outputList);
     }
     @Test
     void generateCountPerMinute() throws Exception {
-        generateCountPerMinuteWith(Arrays.asList(5));
-        generateCountPerMinuteWith(Arrays.asList(1, 5));
+        // window following window generates same result as one window only
+        generateCountPerMinuteWith(Arrays.asList(5), new ArrayList<>(), fiveMinCntExpected);
+        generateCountPerMinuteWith(Arrays.asList(1, 5), new ArrayList<>(), fiveMinCntExpected);
+
+    }
+
+    @Test
+    void generateCountPerMinute2() throws Exception {
+        // mix window results
+        ListSink listSink = new ListSink();
+        listSink.outputList.clear();
+        List<PerWindowTopicCount> expected = new ArrayList<>();
+        expected.addAll(oneMinCntExpected);
+        expected.addAll(fiveMinCntExpected);
+        generateCountPerMinuteWith(Arrays.asList(1, 5), Arrays.asList(listSink), expected);
+
     }
 
 }
