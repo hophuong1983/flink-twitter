@@ -18,8 +18,7 @@ import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResu
 import flink.twitter.streaming.model.Tweet;
 import flink.twitter.streaming.utils.PubNubMessageParser;
 import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -27,11 +26,11 @@ import java.util.Properties;
 
 public class PubNubSource extends RichSourceFunction<Tweet> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PubNubSource.class);
+    private static final Logger LOG = Logger.getLogger(PubNubSource.class);
 
     private final Properties props;
-    private transient PubNub pubnub;
     private volatile boolean isRunning = true;
+    private transient PubNub pubnub;
 
     public PubNubSource(Properties props) {
         this.props = props;
@@ -70,7 +69,7 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
                     // Need to stop and investigate
                     LOG.error("Got exception with " + message.getMessage().toString(), ex);
                     cancel();
-                    throw ex;
+                    throw new RuntimeException("Got " + ex.getMessage() + " with " + message.getMessage().toString());
                 }
             }
 

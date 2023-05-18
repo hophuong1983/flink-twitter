@@ -49,4 +49,49 @@ Check the tweets output on the TaskManager logs on Flink dashboard.
 9> Tweet{id='1623721371195912195', timestampMs=1675960316834, text='Hoy es MJ 
 Bakán', userName='Pasas al Ron ₪ ø lll ·o.', countryCode='CL', hashTags=[]}
 10> Tweet{id='1623721371439185929', timestampMs=1675960316892, text='Memories 💔', userName='يُمنىٰ', countryCode='EG', hashTags=[]}
-1```
+```
+### Phase 2
+#### Objective
+Implement a client able to consume the 3 (default) top trends in the Netherlands (default)
+#### Implementation
+Since PubNub doesn't provide the service to get top trends in Twitter or the one to consume a specific topic, 
+I have to get the top trend from internet and do filtering in the code.
+I created a demo client that consume tweets, filter to get top trend
+tweets and print out all of them. 
+#### How to run
+Check out the tag and build the jar file
+```
+cd [Path to flink-twitter]
+git checkout phase_2
+cd flink-twitter-streaming/
+mvn install
+```
+Run the Flink client
+```
+bash cmd/run_twitter_trend_analyzer_client.sh
+```
+Check the tweets output on the TaskManager logs on Flink dashboard. <br>
+Note that using PubNub tweets are consumed from all around the world with low throughput,
+there may be no output with the real top trends in some period.
+We could change topics in file `conf/dev/twitter_trend_analyzer.conf`
+to have some output.
+
+```agsl
+...
+twitter {
+    filtering {
+        ...
+        topic.filter {
+            class.name = "RelaxedTopicRule"
+            topics = ["UtrSpa", "m", "n"]
+        }
+    }
+}
+```
+Output examples:
+```
+5> TweetTopic{topic='n', id='1623653554786279426', timestampMs=1675944148142}
+4> TweetTopic{topic='n', id='1623661633401679872', timestampMs=1675946074234}
+4> TweetTopic{topic='m', id='1623661633401679872', timestampMs=1675946074234}
+```
+
