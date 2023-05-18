@@ -15,7 +15,8 @@ import java.util.Properties;
 
 public class TwitterTrendAnalyzerClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PubNubSource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TwitterTrendAnalyzerClient.class);
+
     Config config;
 
     public TwitterTrendAnalyzerClient(String configFilePath) {
