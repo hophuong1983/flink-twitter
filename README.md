@@ -87,8 +87,8 @@ twitter {
 ```
 Output examples:
 ```
-1> Tweet{id='1623622211993993217', timestampMs=1675936675438, text='@Wo1JimWright @RoyalNavy @RoyalMarines @WO1DavidSmith @LtCarlSteedman @WO1MickStanion @SrgCdreMarshall Be nice to s… https://t.co/ZcTKdziPU3', userName='Sebastian', countryCode='GB', hashTags=[]}
-2> Tweet{id='1623622212946395137', timestampMs=1675936675665, text='oh Apollo, the man that u are 🥹', userName='WENDELL (Halaman Era)', countryCode='PH', hashTags=[]}
-3> Tweet{id='1623622213206245376', timestampMs=1675936675727, text='@TheRichardParol @DeloElmo Naaa...se parte fácil, hay que darle con algo que aguante y le dejás el cuerpo hecho una hoja cuadriculada!!!', userName='Edgardo A Martinez', countryCode='AR', hashTags=[]}
+5> TweetTopic{topic='n', id='1623653554786279426', timestampMs=1675944148142}
+4> TweetTopic{topic='n', id='1623661633401679872', timestampMs=1675946074234}
+4> TweetTopic{topic='m', id='1623661633401679872', timestampMs=1675946074234}
 ```
 
