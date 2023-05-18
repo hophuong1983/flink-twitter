@@ -1,5 +1,7 @@
 package flink.twitter.streaming.operators;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import flink.twitter.streaming.model.Tweet;
 import flink.twitter.streaming.model.TweetTopic;
 import flink.twitter.streaming.utils.ListSink;
@@ -9,14 +11,18 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 class TweetFilteringOperatorTest {
 
     TweetFilteringOperator operator = new TweetFilteringOperator(
-            "es",
-            Arrays.asList("a b", "c d")
+            ConfigFactory.parseMap(Map.of("country.code", "es")),
+            ConfigFactory.parseMap(
+                    Map.of(
+                            "class.name", "StrictTopicRule",
+                            "topics", Arrays.asList("a b", "c d")))
     );
 
     @Test

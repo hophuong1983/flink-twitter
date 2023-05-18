@@ -79,9 +79,12 @@ to have some output.
 ```agsl
 ...
 twitter {
-    topic_filter {
+    filtering {
         ...
-        topics = ["UtrSpa", "n", "m"]
+        topic.filter {
+            class.name = "RelaxedTopicRule"
+            topics = ["UtrSpa", "m", "n"]
+        }
     }
 }
 ```

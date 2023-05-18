@@ -1,5 +1,6 @@
 package flink.twitter.streaming.filtering;
 
+import com.typesafe.config.Config;
 import flink.twitter.streaming.model.Tweet;
 
 public class CountryCodeRule implements Rule {

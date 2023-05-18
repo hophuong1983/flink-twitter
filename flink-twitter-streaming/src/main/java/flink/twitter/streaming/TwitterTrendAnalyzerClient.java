@@ -34,7 +34,7 @@ public class TwitterTrendAnalyzerClient {
         DataStream<Tweet> tweetStream = env.addSource(new PubNubSource(pubNubConf));
 
         // Do filtering
-        Config trendsConfig = config.getConfig("twitter.topic_filter");
+        Config trendsConfig = config.getConfig("twitter.filtering");
         TweetFilteringOperator operator = new TweetFilteringOperator(trendsConfig);
         operator.filter(tweetStream).print();
 

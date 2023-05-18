@@ -1,7 +1,8 @@
 package flink.twitter.streaming.operators;
 
 import com.typesafe.config.Config;
-import flink.twitter.streaming.filtering.CountryCodeRule;
+import flink.twitter.streaming.filtering.Rule;
+import flink.twitter.streaming.filtering.RuleFactory;
 import flink.twitter.streaming.filtering.TopicRule;
 import flink.twitter.streaming.model.Tweet;
 import flink.twitter.streaming.model.TweetTopic;
@@ -15,16 +16,16 @@ import java.util.stream.Collectors;
 
 public class TweetFilteringOperator implements Serializable {
 
-    CountryCodeRule countryCodeRule;
+    Rule countryCodeRule;
     List<TopicRule> topicRules;
 
-    public TweetFilteringOperator(String countryCode, List<String> topicList) {
-        this.countryCodeRule = new CountryCodeRule(countryCode);
-        topicRules = topicList.stream().map(topic -> new TopicRule(topic)).collect(Collectors.toList());
+    public TweetFilteringOperator(Config countryCodeFilterConf, Config topicFilterConf) {
+        this.countryCodeRule = RuleFactory.createCountryCodeRule(countryCodeFilterConf);
+        topicRules = RuleFactory.createTopicRule(topicFilterConf);
     }
 
     public TweetFilteringOperator(Config trendsConfig) {
-        this(trendsConfig.getString("country_code"), trendsConfig.getStringList("topics"));
+        this(trendsConfig.getConfig("country.filter"), trendsConfig.getConfig("topic.filter"));
     }
 
     public DataStream<TweetTopic> filter(DataStream<Tweet> tweetStream) {
