@@ -30,7 +30,7 @@ mvn install
 #### Objective
 Create a client that connects with PubNub.
 #### Implementation
-I created a demo client that consume tweets and print out all of them: `TwitterToStdoutClient`. 
+I created a demo client that consume tweets and print out all of them. 
 #### How to run
 Check out the tag and build the jar file
 ```
@@ -39,7 +39,7 @@ git checkout phase_1
 cd flink-twitter-streaming/
 mvn install
 ```
-Run `TwitterToStdoutClient`
+Run the Flink client
 ```
 bash cmd/run_twitter_trend_analyzer_client.sh 
 ```
