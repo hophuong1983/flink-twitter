@@ -12,7 +12,7 @@ public class RelaxedTopicRule extends TopicRule {
 
     @Override
     protected boolean containsAllKeywords(String text) {
-        String lowerCasedText = " " + text.toLowerCase() + " ";
+        String lowerCasedText = text.toLowerCase();
         return Arrays.stream(keywords).allMatch(keyword -> lowerCasedText.contains(keyword));
     }
 }
