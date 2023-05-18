@@ -17,7 +17,7 @@ import java.util.List;
 
 public class PerWindowTopicCounter {
 
-    public DataStream<TweetTopic> assignWatermark(DataStream<TweetTopic> tweetStream) {
+    private DataStream<TweetTopic> assignWatermark(DataStream<TweetTopic> tweetStream) {
         return tweetStream.assignTimestampsAndWatermarks(
                 WatermarkStrategy
                         .<TweetTopic>forBoundedOutOfOrderness(Duration.ofSeconds(10))

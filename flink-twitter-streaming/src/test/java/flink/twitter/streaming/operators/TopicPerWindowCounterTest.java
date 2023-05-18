@@ -60,7 +60,7 @@ class TopicPerWindowCounterTest {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
 
-        DataStream tweetDs = env.fromElements(
+        DataStream<TweetTopic> tweetDs = env.fromElements(
                 // minute 0
                 new TweetTopic("Pebbles","1", 1684100474000l),
                 new TweetTopic("Fred","2", 1684100474001l),
@@ -73,8 +73,7 @@ class TopicPerWindowCounterTest {
         );
 
         PerWindowTopicCounter counter = new PerWindowTopicCounter();
-        DataStream<TweetTopic> tweetTimeStream = counter.assignWatermark(tweetDs);
-        DataStream<PerWindowTopicCount> result = counter.generateCountPerWindow(tweetTimeStream, Arrays.asList(5));
+        DataStream<PerWindowTopicCount> result = counter.generateCountPerWindow(tweetDs, Arrays.asList(5));
 
         ListSink listSink = new ListSink();
         listSink.outputList.clear();

@@ -12,7 +12,6 @@ import org.apache.flink.util.Collector;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TweetFilteringOperator implements Serializable {
 
