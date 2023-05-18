@@ -49,7 +49,8 @@ public class PerWindowTopicCounter {
                             }
                             collector.collect(new PerWindowTopicCount(topic, cntSum, windowSizeMin, context.window().getEnd()));
                         }
-                    });
+                    })
+                    .setParallelism(windowSizeMinList.size());
 
             for (SinkFunction sink: sinks) {
                 topicCntStream.addSink(sink);

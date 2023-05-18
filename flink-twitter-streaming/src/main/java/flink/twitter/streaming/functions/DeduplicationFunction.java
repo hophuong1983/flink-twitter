@@ -22,6 +22,7 @@ public class DeduplicationFunction extends RichFlatMapFunction<TweetTopic, Tweet
 
     @Override
     public void open(Configuration conf) {
+        // Set up state configs
         StateTtlConfig ttlConfig = StateTtlConfig
                 .newBuilder(Time.minutes(ttlMin))
                 .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
@@ -35,6 +36,7 @@ public class DeduplicationFunction extends RichFlatMapFunction<TweetTopic, Tweet
     }
     @Override
     public void flatMap(TweetTopic tweetTopic, Collector<TweetTopic> collector) throws Exception {
+        // Ignore if tweetTopic is seen before
         if (seen.value() == null) {
             collector.collect(tweetTopic);
             seen.update(true);

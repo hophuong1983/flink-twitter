@@ -8,6 +8,7 @@ public class DeduplicationOperator {
 
     public DataStream<TweetTopic> deduplicate(DataStream<TweetTopic> tweetStream,
                                               int deduplicateStateTtlMin){
+        // Deduplicate tweetStream by id
         return tweetStream
                 .keyBy(topic -> topic.getId())
                 .flatMap(new DeduplicationFunction(deduplicateStateTtlMin));
