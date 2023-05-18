@@ -36,10 +36,8 @@ class TweetFilteringOperatorTest {
                 new Tweet("5", 1, "A h c", "D z F", "es", new String[]{"a b", "i k"}),
                 new Tweet("6", 1, "A h c", "D z F", "fr", new String[]{"a b", "i k"}),
 
-                // match
-                new Tweet("7", 1, "A B c", "D c F", "es", new String[]{"a b", "i k"}),
-                new Tweet("8", 1, "A B c", "D c F", "fr", new String[]{"a b", "i k"})
-
+                // no country
+                new Tweet("7", 1, "A B c", "D c F", null, new String[]{"a b", "i k"})
         );
 
         DataStream<Tweet> filteredTweetStream = operator.filter(tweetStream);
@@ -54,8 +52,7 @@ class TweetFilteringOperatorTest {
                 new Tweet("1", 1, "A B c", "D E F", "es", new String[]{"g h", "i k"}),
                 new Tweet("3", 1, "A h c", "D c F", "es", new String[]{"g h", "i k"}),
                 new Tweet("5", 1, "A h c", "D z F", "es", new String[]{"a b", "i k"}),
-                new Tweet("7", 1, "A B c", "D c F", "es", new String[]{"a b", "i k"})
-
+                new Tweet("7", 1, "A B c", "D c F", null, new String[]{"a b", "i k"})
         );
 
         assertIterableEquals(expected, ListSink.outputList);
