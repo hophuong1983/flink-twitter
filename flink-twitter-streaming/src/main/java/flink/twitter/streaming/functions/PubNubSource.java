@@ -18,8 +18,7 @@ import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResu
 import flink.twitter.streaming.model.Tweet;
 import flink.twitter.streaming.utils.PubNubMessageParser;
 import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -27,7 +26,7 @@ import java.util.Properties;
 
 public class PubNubSource extends RichSourceFunction<Tweet> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PubNubSource.class);
+    private static final Logger LOG = Logger.getLogger(PubNubSource.class);
 
     private final Properties props;
     private volatile boolean isRunning = true;
