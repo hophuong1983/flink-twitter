@@ -1,6 +1,7 @@
 package flink.twitter.streaming.operators;
 
 import flink.twitter.streaming.model.Tweet;
+import flink.twitter.streaming.model.TweetTopic;
 import flink.twitter.streaming.utils.ListSink;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -40,19 +41,20 @@ class TweetFilteringOperatorTest {
                 new Tweet("7", 1, "A B c", "D c F", null, new String[]{"a b", "i k"})
         );
 
-        DataStream<Tweet> filteredTweetStream = operator.filter(tweetStream);
+        DataStream<TweetTopic> filteredTweetStream = operator.filter(tweetStream);
 
         ListSink sink = new ListSink();
         ListSink.outputList.clear();
         filteredTweetStream.addSink(sink);
 
         env.execute();
-        List<Tweet> expected = Arrays.asList(
+        List expected = Arrays.asList(
                 // name matching
-                new Tweet("1", 1, "A B c", "D E F", "es", new String[]{"g h", "i k"}),
-                new Tweet("3", 1, "A h c", "D c F", "es", new String[]{"g h", "i k"}),
-                new Tweet("5", 1, "A h c", "D z F", "es", new String[]{"a b", "i k"}),
-                new Tweet("7", 1, "A B c", "D c F", null, new String[]{"a b", "i k"})
+                new TweetTopic("a b", "1", 1),
+                new TweetTopic("c d", "3", 1),
+                new TweetTopic("a b", "5", 1),
+                new TweetTopic("a b", "7", 1),
+                new TweetTopic("c d", "7", 1)
         );
 
         assertIterableEquals(expected, ListSink.outputList);

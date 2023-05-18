@@ -70,16 +70,9 @@ Run the Flink client
 ```
 bash cmd/run_twitter_trend_analyzer_client.sh
 ```
-Check the tweets output on the TaskManager logs on Flink dashboard.
-```
-8> Tweet{id='1623721370809933824', timestampMs=1675960316742, text='@haluklevent  abi siyaseti sevmiyorsun biliyorum amma seçim için hazineden aldıkları paranın birazını sosyal soruml… https://t.co/g7S50HvCtV', userName='Ramazan AZAK', countryCode=null, hashTags=[]}
-9> Tweet{id='1623721371195912195', timestampMs=1675960316834, text='Hoy es MJ
-Bakán', userName='Pasas al Ron ₪ ø lll ·o.', countryCode='NL', hashTags=[]}
-10> Tweet{id='1623721371439185929', timestampMs=1675960316892, text='Memories 💔', userName='يُمنىٰ', countryCode='NL', hashTags=[]}
-```
-
-Note that using PubNub tweets are consumed from all around the world with low throughput, 
-there may be no output with the real top trends in some period. 
+Check the tweets output on the TaskManager logs on Flink dashboard. <br>
+Note that using PubNub tweets are consumed from all around the world with low throughput,
+there may be no output with the real top trends in some period.
 We could change topics in file `conf/dev/twitter_trend_analyzer.conf`
 to have some output.
 
@@ -88,7 +81,14 @@ to have some output.
 twitter {
     topic_filter {
         ...
-        topics = ["M"]
+        topics = ["UtrSpa", "n", "m"]
     }
 }
 ```
+Output examples:
+```
+1> Tweet{id='1623622211993993217', timestampMs=1675936675438, text='@Wo1JimWright @RoyalNavy @RoyalMarines @WO1DavidSmith @LtCarlSteedman @WO1MickStanion @SrgCdreMarshall Be nice to s… https://t.co/ZcTKdziPU3', userName='Sebastian', countryCode='GB', hashTags=[]}
+2> Tweet{id='1623622212946395137', timestampMs=1675936675665, text='oh Apollo, the man that u are 🥹', userName='WENDELL (Halaman Era)', countryCode='PH', hashTags=[]}
+3> Tweet{id='1623622213206245376', timestampMs=1675936675727, text='@TheRichardParol @DeloElmo Naaa...se parte fácil, hay que darle con algo que aguante y le dejás el cuerpo hecho una hoja cuadriculada!!!', userName='Edgardo A Martinez', countryCode='AR', hashTags=[]}
+```
+
