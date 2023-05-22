@@ -5,12 +5,12 @@ import java.util.Objects;
 
 public class PerWindowTopicCount implements Serializable {
     String topic;
-    int count;
+    long count;
     int windowSizeMin;
 
     long watermarkTimeMs;
 
-    public PerWindowTopicCount(String topic, int count, int windowSizeMin, long watermarkTimeMs) {
+    public PerWindowTopicCount(String topic, long count, int windowSizeMin, long watermarkTimeMs) {
 
         this.topic = topic;
         this.count = count;
@@ -51,11 +51,11 @@ public class PerWindowTopicCount implements Serializable {
         this.topic = topic;
     }
 
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 
-    public void setCount(int count) {
+    public void setCount(long count) {
         this.count = count;
     }
 

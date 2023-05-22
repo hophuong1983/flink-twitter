@@ -2,6 +2,7 @@ package flink.twitter.streaming;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import flink.twitter.streaming.functions.PerWindowTopicCountRedisMapper;
 import flink.twitter.streaming.functions.PubNubSource;
 import flink.twitter.streaming.model.PerWindowTopicCount;
 import flink.twitter.streaming.model.Tweet;
@@ -12,8 +13,9 @@ import flink.twitter.streaming.operators.TweetFilteringOperator;
 import flink.twitter.streaming.utils.ConfigUtils;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.PrintSinkFunction;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.flink.streaming.connectors.redis.RedisSink;
+import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -45,7 +47,7 @@ public class TwitterTrendAnalyzerClient {
         DataStream<TweetTopic> topicStream = filterOperator.filter(tweetStream);
 
         // Get configured config
-        Config aggregationConfig = config.getConfig("aggregation");
+        Config aggregationConfig = config.getConfig("twitter.aggregation");
         List<Integer> windows = aggregationConfig.getIntList("windows");
 
         // Deduplicate stream
@@ -54,7 +56,14 @@ public class TwitterTrendAnalyzerClient {
                 deduplicationOperator.deduplicate(topicStream, Collections.max(windows));
 
         // For each topic, count messages per window
-        List<SinkFunction> sinks = Arrays.asList(new PrintSinkFunction());
+        Config redisConfig = config.getConfig("redis");
+        FlinkJedisPoolConfig redisPoolConf =
+                new FlinkJedisPoolConfig.Builder().setHost(redisConfig.getString("host")).build();
+        List<SinkFunction> sinks = Arrays.asList(
+                new RedisSink<PerWindowTopicCount>(
+                        redisPoolConf,
+                        new PerWindowTopicCountRedisMapper(redisConfig.getString("additional.key")))
+        );
         PerWindowTopicCounter countOperator = new PerWindowTopicCounter();
         countOperator.generateCountPerWindow(deduplicatedTopicStream, windows, sinks);
 
