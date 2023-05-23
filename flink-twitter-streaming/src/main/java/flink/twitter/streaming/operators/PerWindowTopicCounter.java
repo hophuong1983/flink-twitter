@@ -8,6 +8,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
@@ -40,7 +41,7 @@ public class PerWindowTopicCounter {
         for (int windowSizeMin : windowSizeMinList) {
             topicCntStream = topicCntStream
                     .keyBy(topicCnt -> topicCnt.getTopic())
-                    .window(SlidingEventTimeWindows.of(Time.minutes(windowSizeMin), Time.minutes(1)))
+                    .window(TumblingEventTimeWindows.of(Time.minutes(windowSizeMin)))
                     .allowedLateness(Time.seconds(allowedLatenessSec))
                     .process(new ProcessWindowFunction<PerWindowTopicCount, PerWindowTopicCount, String, TimeWindow>() {
                         @Override
