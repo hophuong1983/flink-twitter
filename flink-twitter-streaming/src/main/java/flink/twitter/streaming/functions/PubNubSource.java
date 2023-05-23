@@ -126,6 +126,7 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
     public void cancel() {
         LOG.info("Disconnecting PubNub");
         if (pubnub != null) {
+            isRunning = false;
             pubnub.disconnect();
             pubnub.forceDestroy();
         }
