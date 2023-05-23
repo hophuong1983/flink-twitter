@@ -12,8 +12,10 @@ import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindo
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
+import org.apache.flink.util.OutputTag;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -35,6 +37,7 @@ public class PerWindowTopicCounter {
         DataStream<PerWindowTopicCount> topicCntStream = tweetStream.map(
                 tweet -> new PerWindowTopicCount(tweet.getTopic(), 1, -1, -1));
 
+        List<DataStream<PerWindowTopicCount>> streamList = new ArrayList<>();
         for (int windowSizeMin : windowSizeMinList) {
             topicCntStream = topicCntStream
                     .keyBy(topicCnt -> topicCnt.getTopic())
@@ -62,8 +65,10 @@ public class PerWindowTopicCounter {
                         .setParallelism(topicCount);
             }
 
+            streamList.add(topicCntStream);
         }
-        return topicCntStream;
+
+        return streamList.stream().reduce((stream1, stream2) -> stream1.union(stream2)).get();
     }
 
 }

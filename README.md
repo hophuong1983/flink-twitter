@@ -138,3 +138,41 @@ curl http://localhost:8082/api/windows
 curl http://localhost:8082/api/topics/m/1
 6
 ```
+### Phase 4
+#### Objective
+Sync these aggregations on a key-value storage using the time period + the time leap as a key
+#### How to run
+Check out the tag and build the jar file
+```
+cd [Path to flink-twitter]
+git checkout phase_4
+cd flink-twitter-streaming/
+mvn install
+```
+Run redis server / cluster. <br>
+Example: On MacOS
+```agsl
+brew services start redis
+```
+Run the Flink client
+```
+bash cmd/run_twitter_trend_analyzer_client.sh
+```
+Check output on redis client:
+```
+redis-cli
+127.0.0.1:6379> hgetall twitter_topic_flink_multi_topic
+ 1) "1675960260000-1"
+ 2) "[{\"topic\":\"m\",\"count\":6}]"
+ 3) "1675960320000-1"
+ 4) "[{\"topic\":\"m\",\"count\":5}]"
+ 5) "1675960380000-1"
+ 6) "[{\"topic\":\"m\",\"count\":5},{\"topic\":\"n\",\"count\":1}]"
+ 7) "1675960440000-1"
+ 8) "[{\"topic\":\"n\",\"count\":1},{\"topic\":\"m\",\"count\":5}]"
+ 9) "1675960500000-1"
+10) "[{\"topic\":\"m\",\"count\":4}]"
+11) "1675960500000-5"
+12) "[{\"topic\":\"n\",\"count\":2},{\"topic\":\"m\",\"count\":25}]"
+```
+
