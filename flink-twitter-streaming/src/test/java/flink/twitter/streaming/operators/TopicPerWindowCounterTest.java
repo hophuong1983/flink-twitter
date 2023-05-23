@@ -93,13 +93,10 @@ class TopicPerWindowCounterTest {
         );
 
         PerWindowTopicCounter counter = new PerWindowTopicCounter();
-        DataStream<PerWindowTopicCount> result = counter.generateCountPerWindow(tweetDs, windowSizeMinList, 1);
-        for (SinkFunction sinkFunction: sinks) {
-            result.addSink(sinkFunction);
-        }
+        DataStream<PerWindowTopicCount> result = counter.generateCountPerWindow(tweetDs, windowSizeMinList, 1, sinks);
+
         if (sinks.isEmpty()) {
             ListSink listSink = new ListSink();
-            listSink.outputList.clear();
             result.addSink(listSink);
         }
 
@@ -110,7 +107,9 @@ class TopicPerWindowCounterTest {
     @Test
     void generateCountPerMinute() throws Exception {
         // window following window generates same result as one window only
+        ListSink.outputList.clear();
         generateCountPerMinuteWith(Arrays.asList(5), new ArrayList<>(), fiveMinCntExpected);
+        ListSink.outputList.clear();
         generateCountPerMinuteWith(Arrays.asList(1), new ArrayList<>(), oneMinCntExpected);
     }
 
