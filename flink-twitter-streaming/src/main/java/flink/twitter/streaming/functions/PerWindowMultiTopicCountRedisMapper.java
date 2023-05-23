@@ -11,7 +11,7 @@ public class PerWindowMultiTopicCountRedisMapper implements RedisMapper<PerWindo
 
     String hashKey;
 
-    transient ObjectMapper objectMapper = new ObjectMapper();
+    static final ObjectMapper objectMapper = new ObjectMapper();
 
     public PerWindowMultiTopicCountRedisMapper(String hashKey) {
         this.hashKey = hashKey;
