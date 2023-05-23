@@ -26,7 +26,9 @@ public class PerWindowTopicCounter {
     }
 
     public DataStream<PerWindowTopicCount> generateCountPerWindow(DataStream<TweetTopic> tweetStream,
-                                                                  List<Integer> windowSizeMinList, List<SinkFunction> sinks) {
+                                                                  List<Integer> windowSizeMinList,
+                                                                  int allowedLatenessSec,
+                                                                  List<SinkFunction> sinks) {
 
         DataStream<PerWindowTopicCount> topicCntStream =
                 assignWatermark(tweetStream).map(
@@ -36,6 +38,7 @@ public class PerWindowTopicCounter {
             topicCntStream = topicCntStream
                     .keyBy(topicCnt -> topicCnt.getTopic())
                     .window(SlidingEventTimeWindows.of(Time.minutes(windowSizeMin), Time.minutes(1)))
+                    .allowedLateness(Time.seconds(allowedLatenessSec))
                     .process(new ProcessWindowFunction<PerWindowTopicCount, PerWindowTopicCount, String, TimeWindow>() {
                         @Override
                         public void process(String topic,

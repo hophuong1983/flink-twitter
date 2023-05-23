@@ -93,7 +93,7 @@ class TopicPerWindowCounterTest {
         );
 
         PerWindowTopicCounter counter = new PerWindowTopicCounter();
-        DataStream<PerWindowTopicCount> result = counter.generateCountPerWindow(tweetDs, windowSizeMinList, sinks);
+        DataStream<PerWindowTopicCount> result = counter.generateCountPerWindow(tweetDs, windowSizeMinList, 1, sinks);
 
         if (sinks.isEmpty()) {
             ListSink listSink = new ListSink();

@@ -7,15 +7,15 @@ import org.apache.flink.streaming.connectors.redis.common.mapper.RedisMapper;
 
 public class PerWindowTopicCountRedisMapper implements RedisMapper<PerWindowTopicCount> {
 
-    String additionalKey;
+    String hashKey;
 
-    public PerWindowTopicCountRedisMapper(String additionalKey) {
-        this.additionalKey = additionalKey;
+    public PerWindowTopicCountRedisMapper(String hashKey) {
+        this.hashKey = hashKey;
     }
 
     @Override
     public RedisCommandDescription getCommandDescription() {
-        return new RedisCommandDescription(RedisCommand.HSET, additionalKey);
+        return new RedisCommandDescription(RedisCommand.HSET, hashKey);
     }
 
     @Override
