@@ -29,7 +29,7 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
     private static final Logger LOG = Logger.getLogger(PubNubSource.class);
 
     private final Properties props;
-    private volatile boolean isRunning = true;
+    private volatile boolean isRunning = false;
     private transient PubNub pubnub;
 
     public PubNubSource(Properties props) {
@@ -117,6 +117,7 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
                 .execute();
 
         // Keep the thread running to do callback
+        isRunning = true;
         while (isRunning) {
             Thread.sleep(1000);
         }
@@ -125,16 +126,9 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
     @Override
     public void cancel() {
         LOG.info("Disconnecting PubNub");
+        isRunning = false;
         if (pubnub != null) {
-            isRunning = false;
-            pubnub.disconnect();
             pubnub.forceDestroy();
         }
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        cancel();
     }
 }

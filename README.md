@@ -94,4 +94,47 @@ Output examples:
 4> TweetTopic{topic='n', id='1623661633401679872', timestampMs=1675946074234}
 4> TweetTopic{topic='m', id='1623661633401679872', timestampMs=1675946074234}
 ```
-
+### Phase 3
+#### Objective
+Implement a client that connects with Twitter stream and calculates (on your consumer) how many tweets we have every 1, 5 and 10 minutes for a trend topic. 
+Build Rest API to get those information and make topic name and window sizes configurable.
+#### How to run
+##### Streaming application
+Check out the tag and build the jar file
+```
+cd [Path to flink-twitter]
+git checkout phase_3
+cd flink-twitter-streaming/
+mvn install
+```
+Run redis server / cluster. <br>
+Example: On MacOS
+```agsl
+brew services start redis
+```
+Run the Flink client
+```
+bash cmd/run_twitter_trend_analyzer_client.sh
+```
+##### Web application
+Open a new terminal, build the jar file for the web application:
+```
+cd [Path to flink-twitter]
+git checkout phase_3
+cd topic_count_web/
+mvn install
+```
+Run the web application
+```agsl
+java -jar target/topic_count_web-1.0-SNAPSHOT.jar
+```
+##### Check REST API output
+Open a new terminal, check API output
+```agsl
+curl http://localhost:8082/api/topics
+["UtrSpa","m","n"]
+curl http://localhost:8082/api/windows
+[1, 5, 10]
+curl http://localhost:8082/api/topics/m/1
+6
+```
