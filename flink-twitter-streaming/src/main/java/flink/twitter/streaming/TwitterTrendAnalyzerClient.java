@@ -16,9 +16,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessin
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.connectors.redis.RedisSink;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig;
-import org.apache.flink.util.OutputTag;
 import org.apache.log4j.Logger;
 import redis.clients.jedis.Jedis;
 
@@ -49,7 +49,7 @@ public class TwitterTrendAnalyzerClient {
         Config redisConfig = config.getConfig("redis");
         String redisHost = redisConfig.getString("host");
         int redisPort = redisConfig.getInt("port");
-        String hashKey = redisConfig.getString("current.hash.key");
+        String hashKey = redisConfig.getString("hash.key.general");
 
         Jedis jedis = new Jedis(redisHost, redisPort);
 
@@ -87,9 +87,11 @@ public class TwitterTrendAnalyzerClient {
         List<Integer> windows = aggregationConfig.getIntList("windowsMin");
         int allowedLatenessSec = aggregationConfig.getInt("allowedLatenessSec");
         PerWindowTopicCounter countOperator = new PerWindowTopicCounter();
-
         DataStream<PerWindowTopicCount> countStream = countOperator.generateCountPerWindow(
-                deduplicatedTopicStream, windows, allowedLatenessSec, Arrays.asList(createRedisSink()));
+                deduplicatedTopicStream,
+                aggregationConfig.getIntList("windowsMin"),
+                aggregationConfig.getInt("allowedLatenessSec"),
+                Arrays.asList(createRedisSink("hash.key.general")));
 
         // Create multi topic count per period - history of count
         PerWindowMultiTopicCountOperator multiTopicCountOperator = new PerWindowMultiTopicCountOperator();
@@ -101,16 +103,15 @@ public class TwitterTrendAnalyzerClient {
         env.execute();
     }
 
-    private RedisSink<PerWindowTopicCount> createRedisSink() {
+    private SinkFunction<PerWindowTopicCount> createRedisSink(String hashKey) {
         Config redisConfig = config.getConfig("redis");
         FlinkJedisPoolConfig redisPoolConf =
                 new FlinkJedisPoolConfig.Builder()
                         .setHost(redisConfig.getString("host"))
                         .setPort(redisConfig.getInt("port")).build();
-
         return new RedisSink<PerWindowTopicCount>(
                 redisPoolConf,
-                new PerWindowTopicCountRedisMapper(redisConfig.getString("current.hash.key")));
+                new PerWindowTopicCountRedisMapper(redisConfig.getString(hashKey)));
     }
 
 
