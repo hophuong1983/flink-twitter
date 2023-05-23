@@ -1,5 +1,8 @@
 package flink.twitter.streaming.operators;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import flink.twitter.streaming.model.PerWindowTopicCount;
 import flink.twitter.streaming.model.TweetTopic;
 import flink.twitter.streaming.utils.ListSink;
@@ -92,8 +95,15 @@ class TopicPerWindowCounterTest {
                 new TweetTopic("Fred", "4", 1684100834000l)
         );
 
-        PerWindowTopicCounter counter = new PerWindowTopicCounter();
-        DataStream<PerWindowTopicCount> result = counter.generateCountPerWindow(tweetDs, windowSizeMinList, 1, sinks);
+        Config aggregationConf = ConfigFactory.load()
+                .withValue("windowsMin", ConfigValueFactory.fromAnyRef(windowSizeMinList))
+                .withValue("allowedLatenessSec", ConfigValueFactory.fromAnyRef(1));
+        Config filterConf = ConfigFactory.load()
+                .withValue(
+                        "topics",
+                        ConfigValueFactory.fromAnyRef(Arrays.asList("1", "2")));
+        PerWindowTopicCounter counter = new PerWindowTopicCounter(aggregationConf, filterConf);
+        DataStream<PerWindowTopicCount> result = counter.generateCountPerWindow(tweetDs, sinks);
 
         if (sinks.isEmpty()) {
             ListSink listSink = new ListSink();

@@ -1,5 +1,6 @@
 package flink.twitter.streaming.operators;
 
+import com.typesafe.config.Config;
 import flink.twitter.streaming.model.PerWindowTopicCount;
 import flink.twitter.streaming.model.TweetTopic;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -17,6 +18,16 @@ import java.util.List;
 
 public class PerWindowTopicCounter {
 
+    List<Integer> windowSizeMinList;
+    int allowedLatenessSec;
+    private int topicCount;
+
+    public PerWindowTopicCounter(Config aggregationConfig, Config topicFilterConf) {
+        this.windowSizeMinList = aggregationConfig.getIntList("windowsMin");
+        this.allowedLatenessSec = aggregationConfig.getInt("allowedLatenessSec");
+        this.topicCount = topicFilterConf.getStringList("topics").size();
+    }
+
     private DataStream<TweetTopic> assignWatermark(DataStream<TweetTopic> tweetStream) {
         return tweetStream.assignTimestampsAndWatermarks(
                 WatermarkStrategy
@@ -26,8 +37,6 @@ public class PerWindowTopicCounter {
     }
 
     public DataStream<PerWindowTopicCount> generateCountPerWindow(DataStream<TweetTopic> tweetStream,
-                                                                  List<Integer> windowSizeMinList,
-                                                                  int allowedLatenessSec,
                                                                   List<SinkFunction> sinks) {
 
         DataStream<PerWindowTopicCount> topicCntStream =
@@ -53,12 +62,12 @@ public class PerWindowTopicCounter {
                             collector.collect(new PerWindowTopicCount(topic, cntSum, windowSizeMin, context.window().getEnd()));
                         }
                     })
-                    .setParallelism(windowSizeMinList.size());
+                    .setParallelism(topicCount);
 
             for (SinkFunction sink: sinks) {
                 topicCntStream
                         .addSink(sink)
-                        .setParallelism(windowSizeMinList.size());
+                        .setParallelism(topicCount);
             }
 
         }

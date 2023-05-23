@@ -32,8 +32,8 @@ class DeduplicationOperatorTest {
                 new TweetTopic("Fred", "4", 1684100474000l + 360000)
         );
 
-        DeduplicationOperator deduplicationOperator = new DeduplicationOperator();
-        DataStream<TweetTopic> result = deduplicationOperator.deduplicate(tweetDs, 3);
+        DeduplicationOperator deduplicationOperator = new DeduplicationOperator(3);
+        DataStream<TweetTopic> result = deduplicationOperator.deduplicate(tweetDs);
 
         ListSink listSink = new ListSink();
         listSink.outputList.clear();

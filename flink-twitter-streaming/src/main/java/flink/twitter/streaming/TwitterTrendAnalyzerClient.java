@@ -77,17 +77,16 @@ public class TwitterTrendAnalyzerClient {
 
         // Deduplicate stream
         int seenWindowSec = config.getInt("twitter.deduplication.seenWindowSec");
-        DeduplicationOperator deduplicationOperator = new DeduplicationOperator();
-        DataStream<TweetTopic> deduplicatedTopicStream =
-                deduplicationOperator.deduplicate(topicStream, seenWindowSec);
+        Config deduplicationConf = config.getConfig("twitter.deduplication");
+        DeduplicationOperator deduplicationOperator = new DeduplicationOperator(deduplicationConf);
+        DataStream<TweetTopic> deduplicatedTopicStream = deduplicationOperator.deduplicate(topicStream);
 
         // For each topic, count messages per window
         Config aggregationConfig = config.getConfig("twitter.aggregation");
-        PerWindowTopicCounter countOperator = new PerWindowTopicCounter();
+        Config topicFilterConfig = trendsConfig.getConfig("topic.filter");
+        PerWindowTopicCounter countOperator = new PerWindowTopicCounter(aggregationConfig, topicFilterConfig);
         countOperator.generateCountPerWindow(
                 deduplicatedTopicStream,
-                aggregationConfig.getIntList("windowsMin"),
-                aggregationConfig.getInt("allowedLatenessSec"),
                 Arrays.asList(createRedisSink("hash.key.general")));
 
         env.execute();
