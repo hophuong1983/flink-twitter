@@ -56,7 +56,7 @@ public class TwitterTrendAnalyzerClient {
 
         // Insert window information to Redis
         Config aggregationConfig = config.getConfig("twitter.aggregation");
-        List<Integer> windows = aggregationConfig.getIntList("windowsMin");
+        List<Integer> windows = aggregationConfig.getIntList("windows.min");
         jedis.hset(hashKey, "windows", windows.toString());
 
         // Insert topic information to Redis
@@ -85,7 +85,6 @@ public class TwitterTrendAnalyzerClient {
         DataStream<TweetTopic> topicStream = filterOperator.filter(tweetTimeStream);
 
         // Deduplicate stream
-        int seenWindowSec = config.getInt("twitter.deduplication.seenWindowSec");
         Config deduplicationConf = config.getConfig("twitter.deduplication");
         DeduplicationOperator deduplicationOperator = new DeduplicationOperator(deduplicationConf);
         DataStream<TweetTopic> deduplicatedTopicStream = deduplicationOperator.deduplicate(topicStream);

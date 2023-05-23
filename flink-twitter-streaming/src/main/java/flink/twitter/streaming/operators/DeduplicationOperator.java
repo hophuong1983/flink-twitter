@@ -14,7 +14,7 @@ public class DeduplicationOperator {
     }
 
     public DeduplicationOperator(Config config){
-        this(config.getInt("seenWindowSec"));
+        this(config.getInt("seen.window.sec"));
     }
 
     public DataStream<TweetTopic> deduplicate(DataStream<TweetTopic> tweetStream){

@@ -23,8 +23,8 @@ public class PerWindowTopicCounter {
     private int topicCount;
 
     public PerWindowTopicCounter(Config aggregationConfig, Config topicFilterConf) {
-        this.windowSizeMinList = aggregationConfig.getIntList("windowsMin");
-        this.allowedLatenessSec = aggregationConfig.getInt("allowedLatenessSec");
+        this.windowSizeMinList = aggregationConfig.getIntList("windows.min");
+        this.allowedLatenessSec = aggregationConfig.getInt("allowed.lateness.sec");
         this.topicCount = topicFilterConf.getStringList("topics").size();
     }
 
