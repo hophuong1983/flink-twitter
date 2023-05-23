@@ -104,8 +104,8 @@ class TopicPerWindowCounterTest {
         );
 
         Config aggregationConf = ConfigFactory.load()
-                .withValue("windowsMin", ConfigValueFactory.fromAnyRef(windowSizeMinList))
-                .withValue("allowedLatenessSec", ConfigValueFactory.fromAnyRef(1));
+                .withValue("windows.min", ConfigValueFactory.fromAnyRef(windowSizeMinList))
+                .withValue("allowed.lateness.sec", ConfigValueFactory.fromAnyRef(1));
         Config filterConf = ConfigFactory.load()
                 .withValue(
                         "topics",
