@@ -22,7 +22,9 @@ import org.apache.log4j.Logger;
 import redis.clients.jedis.Jedis;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
 public class TwitterTrendAnalyzerClient {
 
@@ -46,7 +48,7 @@ public class TwitterTrendAnalyzerClient {
         Config redisConfig = config.getConfig("redis");
         String redisHost = redisConfig.getString("host");
         int redisPort = redisConfig.getInt("port");
-        String hashKey = redisConfig.getString("hash.key");
+        String hashKey = redisConfig.getString("hash.key.general");
 
         Jedis jedis = new Jedis(redisHost, redisPort);
 
@@ -57,7 +59,7 @@ public class TwitterTrendAnalyzerClient {
 
         // Insert topic information to Redis
         Config topicConfig = config.getConfig("twitter.filtering.topic.filter");
-        List<String> topics =  topicConfig.getStringList("topics");
+        List<String> topics = topicConfig.getStringList("topics");
         jedis.hset(hashKey, "topics", new ObjectMapper().writeValueAsString(topics));
     }
 
@@ -80,29 +82,31 @@ public class TwitterTrendAnalyzerClient {
                 deduplicationOperator.deduplicate(topicStream, seenWindowSec);
 
         // For each topic, count messages per window
+        Config aggregationConfig = config.getConfig("twitter.aggregation");
+        PerWindowTopicCounter countOperator = new PerWindowTopicCounter();
+        countOperator.generateCountPerWindow(
+                deduplicatedTopicStream,
+                aggregationConfig.getIntList("windowsMin"),
+                aggregationConfig.getInt("allowedLatenessSec"),
+                Arrays.asList(createRedisSink("hash.key.general")));
+
+        env.execute();
+    }
+
+    private SinkFunction<PerWindowTopicCount> createRedisSink(String hashKey) {
         Config redisConfig = config.getConfig("redis");
         FlinkJedisPoolConfig redisPoolConf =
                 new FlinkJedisPoolConfig.Builder()
                         .setHost(redisConfig.getString("host"))
                         .setPort(redisConfig.getInt("port")).build();
-        List<SinkFunction> sinks = Arrays.asList(
-                new RedisSink<PerWindowTopicCount>(
-                        redisPoolConf,
-                        new PerWindowTopicCountRedisMapper(redisConfig.getString("hash.key")))
-        );
-
-        Config aggregationConfig = config.getConfig("twitter.aggregation");
-        List<Integer> windows = aggregationConfig.getIntList("windowsMin");
-        int allowedLatenessSec = aggregationConfig.getInt("allowedLatenessSec");
-        PerWindowTopicCounter countOperator = new PerWindowTopicCounter();
-        countOperator.generateCountPerWindow(deduplicatedTopicStream, windows, allowedLatenessSec, sinks);
-
-        env.execute();
+        return new RedisSink<PerWindowTopicCount>(
+                redisPoolConf,
+                new PerWindowTopicCountRedisMapper(redisConfig.getString(hashKey)));
     }
 
     public static void main(String[] args) throws Exception {
 
-        if (args.length == 0){
+        if (args.length == 0) {
             LOG.error("Config file is missing");
             System.exit(1);
         }
