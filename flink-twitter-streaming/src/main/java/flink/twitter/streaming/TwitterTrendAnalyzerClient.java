@@ -2,13 +2,14 @@ package flink.twitter.streaming;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import flink.twitter.streaming.functions.PerWindowMultiTopicCountRedisMapper;
 import flink.twitter.streaming.functions.PerWindowTopicCountRedisMapper;
 import flink.twitter.streaming.functions.PubNubSource;
 import flink.twitter.streaming.model.PerWindowTopicCount;
 import flink.twitter.streaming.model.Tweet;
 import flink.twitter.streaming.model.TweetTopic;
 import flink.twitter.streaming.operators.DeduplicationOperator;
-import flink.twitter.streaming.operators.PerWindowMultiTopicCountOperator;
+import flink.twitter.streaming.operators.PerWindowMultiTopicCounter;
 import flink.twitter.streaming.operators.PerWindowTopicCounter;
 import flink.twitter.streaming.operators.TweetFilteringOperator;
 import flink.twitter.streaming.utils.ConfigUtils;
@@ -19,6 +20,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.connectors.redis.RedisSink;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig;
+import org.apache.flink.streaming.connectors.redis.common.mapper.RedisMapper;
 import org.apache.log4j.Logger;
 import redis.clients.jedis.Jedis;
 
@@ -85,30 +87,31 @@ public class TwitterTrendAnalyzerClient {
         // For each topic, count messages per window
         Config aggregationConfig = config.getConfig("twitter.aggregation");
         PerWindowTopicCounter countOperator = new PerWindowTopicCounter();
+        Config redisConfig = config.getConfig("redis");
+        RedisMapper perTopicRedisMapper = new PerWindowTopicCountRedisMapper(redisConfig.getString("hash.key.general"));
         DataStream<PerWindowTopicCount> countStream = countOperator.generateCountPerWindow(
                 deduplicatedTopicStream,
                 aggregationConfig.getIntList("windowsMin"),
                 aggregationConfig.getInt("allowedLatenessSec"),
-                Arrays.asList(createRedisSink("hash.key.general")));
+                Arrays.asList(createRedisSink(perTopicRedisMapper)));
 
         // Create multi topic count per period - history of count
-        PerWindowMultiTopicCountOperator multiTopicCountOperator = new PerWindowMultiTopicCountOperator();
+        PerWindowMultiTopicCounter multiTopicCountOperator = new PerWindowMultiTopicCounter();
+        RedisMapper multiTopicRedisMapper = new PerWindowMultiTopicCountRedisMapper(redisConfig.getString("multi.topic.count"));
         multiTopicCountOperator
                 .generateCountPerWindow(countStream)
-                .print();
+                .addSink(createRedisSink(multiTopicRedisMapper));
 
         env.execute();
     }
 
-    private SinkFunction<PerWindowTopicCount> createRedisSink(String hashKey) {
+    private <T> SinkFunction<T> createRedisSink(RedisMapper<T> mapper) {
         Config redisConfig = config.getConfig("redis");
         FlinkJedisPoolConfig redisPoolConf =
                 new FlinkJedisPoolConfig.Builder()
                         .setHost(redisConfig.getString("host"))
                         .setPort(redisConfig.getInt("port")).build();
-        return new RedisSink<PerWindowTopicCount>(
-                redisPoolConf,
-                new PerWindowTopicCountRedisMapper(redisConfig.getString(hashKey)));
+        return new RedisSink<T>(redisPoolConf, mapper);
     }
 
 

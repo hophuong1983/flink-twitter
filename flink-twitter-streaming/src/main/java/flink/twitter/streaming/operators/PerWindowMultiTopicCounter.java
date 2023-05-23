@@ -4,7 +4,7 @@ import flink.twitter.streaming.model.PerWindowMultiTopicCount;
 import flink.twitter.streaming.model.PerWindowTopicCount;
 import org.apache.flink.streaming.api.datastream.DataStream;
 
-public class PerWindowMultiTopicCountOperator {
+public class PerWindowMultiTopicCounter {
 
     public DataStream<PerWindowMultiTopicCount> generateCountPerWindow(DataStream<PerWindowTopicCount> countDataStream) {
         return countDataStream
