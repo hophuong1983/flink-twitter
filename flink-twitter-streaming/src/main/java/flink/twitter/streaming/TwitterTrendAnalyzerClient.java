@@ -84,8 +84,6 @@ public class TwitterTrendAnalyzerClient {
 
         // For each topic, count messages per window
         Config aggregationConfig = config.getConfig("twitter.aggregation");
-        List<Integer> windows = aggregationConfig.getIntList("windowsMin");
-        int allowedLatenessSec = aggregationConfig.getInt("allowedLatenessSec");
         PerWindowTopicCounter countOperator = new PerWindowTopicCounter();
         DataStream<PerWindowTopicCount> countStream = countOperator.generateCountPerWindow(
                 deduplicatedTopicStream,
@@ -97,8 +95,7 @@ public class TwitterTrendAnalyzerClient {
         PerWindowMultiTopicCountOperator multiTopicCountOperator = new PerWindowMultiTopicCountOperator();
         multiTopicCountOperator
                 .generateCountPerWindow(countStream)
-                .print()
-                .setParallelism(windows.size());
+                .print();
 
         env.execute();
     }
