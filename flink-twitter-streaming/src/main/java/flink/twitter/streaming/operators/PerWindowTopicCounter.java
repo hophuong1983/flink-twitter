@@ -28,20 +28,11 @@ public class PerWindowTopicCounter {
         this.topicCount = topicFilterConf.getStringList("topics").size();
     }
 
-    private DataStream<TweetTopic> assignWatermark(DataStream<TweetTopic> tweetStream) {
-        return tweetStream.assignTimestampsAndWatermarks(
-                WatermarkStrategy
-                        .<TweetTopic>forBoundedOutOfOrderness(Duration.ofSeconds(10))
-                        .withTimestampAssigner((event, timestamp) -> event.getTimestampMs())
-        );
-    }
-
     public DataStream<PerWindowTopicCount> generateCountPerWindow(DataStream<TweetTopic> tweetStream,
                                                                   List<SinkFunction> sinks) {
 
-        DataStream<PerWindowTopicCount> topicCntStream =
-                assignWatermark(tweetStream).map(
-                        tweet -> new PerWindowTopicCount(tweet.getTopic(), 1, -1, -1));
+        DataStream<PerWindowTopicCount> topicCntStream = tweetStream.map(
+                tweet -> new PerWindowTopicCount(tweet.getTopic(), 1, -1, -1));
 
         for (int windowSizeMin : windowSizeMinList) {
             topicCntStream = topicCntStream

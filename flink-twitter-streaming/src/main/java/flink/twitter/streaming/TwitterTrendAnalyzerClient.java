@@ -11,6 +11,7 @@ import flink.twitter.streaming.operators.DeduplicationOperator;
 import flink.twitter.streaming.operators.PerWindowTopicCounter;
 import flink.twitter.streaming.operators.TweetFilteringOperator;
 import flink.twitter.streaming.utils.ConfigUtils;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -22,6 +23,7 @@ import org.apache.log4j.Logger;
 import redis.clients.jedis.Jedis;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -70,10 +72,17 @@ public class TwitterTrendAnalyzerClient {
         Properties pubNubConf = ConfigUtils.propsFromConfig(config.getConfig("pubnub"));
         DataStream<Tweet> tweetStream = env.addSource(new PubNubSource(pubNubConf));
 
+        // Assign timestamp
+        DataStream<Tweet> tweetTimeStream = tweetStream.assignTimestampsAndWatermarks(
+                WatermarkStrategy
+                        .<Tweet>forBoundedOutOfOrderness(Duration.ofSeconds(10))
+                        .withTimestampAssigner((event, timestamp) -> event.getTimestampMs())
+        );
+
         // Do filtering
         Config trendsConfig = config.getConfig("twitter.filtering");
         TweetFilteringOperator filterOperator = new TweetFilteringOperator(trendsConfig);
-        DataStream<TweetTopic> topicStream = filterOperator.filter(tweetStream);
+        DataStream<TweetTopic> topicStream = filterOperator.filter(tweetTimeStream);
 
         // Deduplicate stream
         int seenWindowSec = config.getInt("twitter.deduplication.seenWindowSec");

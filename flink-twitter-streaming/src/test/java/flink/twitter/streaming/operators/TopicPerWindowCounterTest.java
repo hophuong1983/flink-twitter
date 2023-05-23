@@ -6,12 +6,14 @@ import com.typesafe.config.ConfigValueFactory;
 import flink.twitter.streaming.model.PerWindowTopicCount;
 import flink.twitter.streaming.model.TweetTopic;
 import flink.twitter.streaming.utils.ListSink;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.PrintSinkFunction;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -93,6 +95,12 @@ class TopicPerWindowCounterTest {
                 new TweetTopic("Wilma","5", 1684100584000l),
                 // minute 6
                 new TweetTopic("Fred", "4", 1684100834000l)
+        );
+
+        tweetDs = tweetDs.assignTimestampsAndWatermarks(
+                WatermarkStrategy
+                        .<TweetTopic>forBoundedOutOfOrderness(Duration.ofSeconds(10))
+                        .withTimestampAssigner((event, timestamp) -> event.getTimestampMs())
         );
 
         Config aggregationConf = ConfigFactory.load()
