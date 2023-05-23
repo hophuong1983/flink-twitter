@@ -20,6 +20,14 @@ public class PerWindowMultiTopicCount implements Serializable {
             this.topic = topic;
             this.count = count;
         }
+
+        @Override
+        public String toString() {
+            return "TopicCount{" +
+                    "topic='" + topic + '\'' +
+                    ", count=" + count +
+                    '}';
+        }
     }
 
     public static PerWindowMultiTopicCount fromSingleCount(PerWindowTopicCount singleCount) {
@@ -45,5 +53,14 @@ public class PerWindowMultiTopicCount implements Serializable {
 
     public List<TopicCount> getTopicCounts() {
         return topicCounts;
+    }
+
+    @Override
+    public String toString() {
+        return "PerWindowMultiTopicCount{" +
+                "windowSizeMin=" + windowSizeMin +
+                ", watermarkTimeMs=" + watermarkTimeMs +
+                ", topicCounts=" + topicCounts +
+                '}';
     }
 }

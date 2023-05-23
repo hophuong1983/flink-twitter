@@ -90,11 +90,16 @@ public class TwitterTrendAnalyzerClient {
 
         DataStream<PerWindowTopicCount> countStream = countOperator.generateCountPerWindow(
                 deduplicatedTopicStream, windows, allowedLatenessSec);
-        countStream.addSink(createRedisSink());
+        countStream
+                .addSink(createRedisSink())
+                .setParallelism(windows.size());
 
-        // Do aggregation topic count per period - history of count
+        // Create multi topic count per period - history of count
         PerWindowMultiTopicCountOperator multiTopicCountOperator = new PerWindowMultiTopicCountOperator();
-        multiTopicCountOperator.generateCountPerWindow(countStream).print();
+        multiTopicCountOperator
+                .generateCountPerWindow(countStream)
+                .print()
+                .setParallelism(windows.size());
 
         env.execute();
     }
