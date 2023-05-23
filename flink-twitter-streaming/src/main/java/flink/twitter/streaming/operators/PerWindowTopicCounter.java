@@ -1,5 +1,6 @@
 package flink.twitter.streaming.operators;
 
+import com.typesafe.config.Config;
 import flink.twitter.streaming.model.PerWindowTopicCount;
 import flink.twitter.streaming.model.TweetTopic;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -19,22 +20,21 @@ import java.util.List;
 
 public class PerWindowTopicCounter {
 
-    private DataStream<TweetTopic> assignWatermark(DataStream<TweetTopic> tweetStream) {
-        return tweetStream.assignTimestampsAndWatermarks(
-                WatermarkStrategy
-                        .<TweetTopic>forBoundedOutOfOrderness(Duration.ofSeconds(10))
-                        .withTimestampAssigner((event, timestamp) -> event.getTimestampMs())
-        );
+    List<Integer> windowSizeMinList;
+    int allowedLatenessSec;
+    private int topicCount;
+
+    public PerWindowTopicCounter(Config aggregationConfig, Config topicFilterConf) {
+        this.windowSizeMinList = aggregationConfig.getIntList("windowsMin");
+        this.allowedLatenessSec = aggregationConfig.getInt("allowedLatenessSec");
+        this.topicCount = topicFilterConf.getStringList("topics").size();
     }
 
     public DataStream<PerWindowTopicCount> generateCountPerWindow(DataStream<TweetTopic> tweetStream,
-                                                                  List<Integer> windowSizeMinList,
-                                                                  int allowedLatenessSec,
                                                                   List<SinkFunction> sinks) {
 
-        DataStream<PerWindowTopicCount> topicCntStream =
-                assignWatermark(tweetStream).map(
-                        tweet -> new PerWindowTopicCount(tweet.getTopic(), 1, -1, -1));
+        DataStream<PerWindowTopicCount> topicCntStream = tweetStream.map(
+                tweet -> new PerWindowTopicCount(tweet.getTopic(), 1, -1, -1));
 
         List<DataStream<PerWindowTopicCount>> streamList = new ArrayList<>();
         for (int windowSizeMin : windowSizeMinList) {
@@ -56,12 +56,12 @@ public class PerWindowTopicCounter {
                             collector.collect(new PerWindowTopicCount(topic, cntSum, windowSizeMin, context.window().getEnd()));
                         }
                     })
-                    .setParallelism(windowSizeMinList.size());
+                    .setParallelism(topicCount);
 
             for (SinkFunction sink: sinks) {
                 topicCntStream
                         .addSink(sink)
-                        .setParallelism(windowSizeMinList.size());
+                        .setParallelism(topicCount);
             }
 
             streamList.add(topicCntStream);

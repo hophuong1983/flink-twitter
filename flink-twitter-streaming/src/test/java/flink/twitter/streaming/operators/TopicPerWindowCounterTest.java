@@ -1,14 +1,19 @@
 package flink.twitter.streaming.operators;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import flink.twitter.streaming.model.PerWindowTopicCount;
 import flink.twitter.streaming.model.TweetTopic;
 import flink.twitter.streaming.utils.ListSink;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.PrintSinkFunction;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -92,8 +97,21 @@ class TopicPerWindowCounterTest {
                 new TweetTopic("Fred", "4", 1684100834000l)
         );
 
-        PerWindowTopicCounter counter = new PerWindowTopicCounter();
-        DataStream<PerWindowTopicCount> result = counter.generateCountPerWindow(tweetDs, windowSizeMinList, 1, sinks);
+        tweetDs = tweetDs.assignTimestampsAndWatermarks(
+                WatermarkStrategy
+                        .<TweetTopic>forBoundedOutOfOrderness(Duration.ofSeconds(10))
+                        .withTimestampAssigner((event, timestamp) -> event.getTimestampMs())
+        );
+
+        Config aggregationConf = ConfigFactory.load()
+                .withValue("windowsMin", ConfigValueFactory.fromAnyRef(windowSizeMinList))
+                .withValue("allowedLatenessSec", ConfigValueFactory.fromAnyRef(1));
+        Config filterConf = ConfigFactory.load()
+                .withValue(
+                        "topics",
+                        ConfigValueFactory.fromAnyRef(Arrays.asList("1", "2")));
+        PerWindowTopicCounter counter = new PerWindowTopicCounter(aggregationConf, filterConf);
+        DataStream<PerWindowTopicCount> result = counter.generateCountPerWindow(tweetDs, sinks);
 
         if (sinks.isEmpty()) {
             ListSink listSink = new ListSink();
