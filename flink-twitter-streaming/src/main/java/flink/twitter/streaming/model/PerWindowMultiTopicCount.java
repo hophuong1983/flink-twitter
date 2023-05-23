@@ -12,24 +12,6 @@ public class PerWindowMultiTopicCount implements Serializable {
 
     List<TopicCount> topicCounts = new ArrayList<>();
 
-    static class TopicCount {
-        String topic;
-        long count;
-
-        public TopicCount(String topic, long count) {
-            this.topic = topic;
-            this.count = count;
-        }
-
-        @Override
-        public String toString() {
-            return "TopicCount{" +
-                    "topic='" + topic + '\'' +
-                    ", count=" + count +
-                    '}';
-        }
-    }
-
     public static PerWindowMultiTopicCount fromSingleCount(PerWindowTopicCount singleCount) {
         PerWindowMultiTopicCount multiCnt = new PerWindowMultiTopicCount();
         multiCnt.watermarkTimeMs = singleCount.watermarkTimeMs;
@@ -49,18 +31,6 @@ public class PerWindowMultiTopicCount implements Serializable {
         return mergedCnt;
     }
 
-    public int getWindowSizeMin() {
-        return windowSizeMin;
-    }
-
-    public long getWatermarkTimeMs() {
-        return watermarkTimeMs;
-    }
-
-    public List<TopicCount> getTopicCounts() {
-        return topicCounts;
-    }
-
     @Override
     public String toString() {
         return "PerWindowMultiTopicCount{" +
@@ -68,5 +38,29 @@ public class PerWindowMultiTopicCount implements Serializable {
                 ", watermarkTimeMs=" + watermarkTimeMs +
                 ", topicCounts=" + topicCounts +
                 '}';
+    }
+
+    public int getWindowSizeMin() {
+        return windowSizeMin;
+    }
+
+    public void setWindowSizeMin(int windowSizeMin) {
+        this.windowSizeMin = windowSizeMin;
+    }
+
+    public long getWatermarkTimeMs() {
+        return watermarkTimeMs;
+    }
+
+    public void setWatermarkTimeMs(long watermarkTimeMs) {
+        this.watermarkTimeMs = watermarkTimeMs;
+    }
+
+    public List<TopicCount> getTopicCounts() {
+        return topicCounts;
+    }
+
+    public void setTopicCounts(List<TopicCount> topicCounts) {
+        this.topicCounts = topicCounts;
     }
 }
