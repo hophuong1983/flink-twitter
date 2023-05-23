@@ -98,7 +98,6 @@ class TopicPerWindowCounterTest {
         }
 
         env.execute();
-        System.out.println(ListSink.outputList);
         assertTrue(expected.containsAll(ListSink.outputList));
         assertTrue(ListSink.outputList.containsAll(expected));
     }
