@@ -29,7 +29,8 @@ public class PerWindowTopicCounter {
 
     public DataStream<PerWindowTopicCount> generateCountPerWindow(DataStream<TweetTopic> tweetStream,
                                                                   List<Integer> windowSizeMinList,
-                                                                  int allowedLatenessSec) {
+                                                                  int allowedLatenessSec,
+                                                                  List<SinkFunction> sinks) {
 
         DataStream<PerWindowTopicCount> topicCntStream =
                 assignWatermark(tweetStream).map(
@@ -56,6 +57,12 @@ public class PerWindowTopicCounter {
                         }
                     })
                     .setParallelism(windowSizeMinList.size());
+
+            for (SinkFunction sink: sinks) {
+                topicCntStream
+                        .addSink(sink)
+                        .setParallelism(windowSizeMinList.size());
+            }
 
             streamList.add(topicCntStream);
         }
