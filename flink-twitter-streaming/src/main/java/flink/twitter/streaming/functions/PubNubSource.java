@@ -27,9 +27,10 @@ import java.util.Properties;
 public class PubNubSource extends RichSourceFunction<Tweet> {
 
     private static final Logger LOG = Logger.getLogger(PubNubSource.class);
-
+    private static final int MAX_RETRY = 3;
     private final Properties props;
     private volatile boolean isRunning = false;
+    private volatile int retries = 0;
     private transient PubNub pubnub;
 
     public PubNubSource(Properties props) {
@@ -45,6 +46,7 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
         pnConfiguration.setSubscribeKey(props.getProperty("subscribe.key"));
 
         pubnub = new PubNub(pnConfiguration);
+
         pubnub.addListener(new SubscribeCallback() {
 
             @Override
@@ -53,6 +55,19 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
                     // Just use the connected event to confirm you are subscribed for
                     // UI / internal notifications, etc
                     LOG.info("Connected PubNub successfully");
+                } else if (status.getCategory() == PNStatusCategory.PNNetworkIssuesCategory ||
+                        status.getCategory() == PNStatusCategory.PNUnexpectedDisconnectCategory
+                ) {
+                    // Handle connection issue
+                    LOG.error("Connection error " + status.getCategory().name());
+                    if (retries == MAX_RETRY){
+                        LOG.error("Reaching max number of retries " + retries);
+                        cancel();
+                    } else {
+                        LOG.info("Reconnect");
+                        pubnub.reconnect();
+                        retries++;
+                    }
                 }
             }
 
@@ -125,8 +140,8 @@ public class PubNubSource extends RichSourceFunction<Tweet> {
 
     @Override
     public void cancel() {
-        LOG.info("Disconnecting PubNub");
         isRunning = false;
+        LOG.info("Disconnecting PubNub");
         if (pubnub != null) {
             pubnub.forceDestroy();
         }

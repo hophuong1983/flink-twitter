@@ -104,7 +104,7 @@ public class TwitterTrendAnalyzerClient {
 
         // Create multi topic count per period - history of count
         RedisMapper multiTopicRedisMapper = new PerWindowMultiTopicCountRedisMapper(redisConfig.getString("hash.key.multi.topic.count"));
-        PerWindowMultiTopicCounter multiTopicCountOperator = new PerWindowMultiTopicCounter();
+        PerWindowMultiTopicCounter multiTopicCountOperator = new PerWindowMultiTopicCounter(aggregationConfig);
         multiTopicCountOperator
                 .generateCountPerWindow(countStream)
                 .addSink(createRedisSink(multiTopicRedisMapper));
